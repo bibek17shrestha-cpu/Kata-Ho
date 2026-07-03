@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saathi Sawaari — Ride Board</title>
+<meta name="description" content="A no-money community ride board. Offer a spare seat or find one, from wherever to wherever.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">साथी सवारी <span class="dots"></span> community ride board</div>
+    <h1>Close the gap<br>between two points.</h1>
+    <p class="sub">A no-money notice board for friends heading the same way. Post a seat you have spare, or a ride you need — from wherever, to wherever.</p>
+    <div class="trail-hero">
+      <svg viewBox="0 0 700 64" preserveAspectRatio="none">
+        <circle cx="18" cy="46" r="5" fill="#E8A33D"/>
+        <path d="M 18 46 C 120 10, 220 58, 340 30 S 560 6, 682 20" stroke="#E8A33D" stroke-width="1.5" stroke-dasharray="1 9" stroke-linecap="round" fill="none" opacity="0.85"/>
+        <circle cx="682" cy="20" r="5" fill="#3E7CB1"/>
+      </svg>
+      <span class="pt" style="position:absolute; left:0; top:44px;">HERE</span>
+      <span class="pt" style="position:absolute; right:0; top:0;">THERE</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="pill active" data-filter="all">All</button>
+    <button class="pill" data-filter="offer">Offering a ride</button>
+    <button class="pill" data-filter="request">Need a ride</button>
+    <div class="spacer"></div>
+    <button class="btn-post" id="openModal">+ Post</button>
+  </div>
+
+  <div id="list"><div class="loading">Loading the board…</div></div>
+
+  <footer>no fares change hands here — just neighbours closing a gap</footer>
+</div>
+
+<div id="overlay" class="overlay" style="display:none;">
+  <div class="modal">
+    <h2>Post to the board</h2>
+    <div class="sub2">Takes a minute. Everyone on the board will see this.</div>
+
+    <div class="type-toggle">
+      <button id="typeOffer" class="sel-offer" type="button">I have space to drive</button>
+      <button id="typeRequest" type="button">I need a ride</button>
+    </div>
+
+    <label for="fName">Your name</label>
+    <input id="fName" placeholder="e.g. Anisha">
+
+    <div class="row2">
+      <div>
+        <label for="fFrom">From</label>
+        <input id="fFrom" placeholder="e.g. Jackson Heights">
+      </div>
+      <div>
+        <label for="fTo">To</label>
+        <input id="fTo" placeholder="e.g. JFK Airport">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div>
+        <label for="fDate">Date</label>
+        <input id="fDate" type="date">
+      </div>
+      <div>
+        <label for="fTime">Time</label>
+        <input id="fTime" type="time">
+      </div>
+    </div>
+
+    <label for="fSeats" id="seatsLabel">Free seats</label>
+    <input id="fSeats" type="number" min="1" max="8" value="1">
+
+    <label for="fNote">Note (optional)</label>
+    <textarea id="fNote" placeholder="Anything helpful — flexible timing, luggage space, etc."></textarea>
+
+    <label for="fContact">How should people reach you?</label>
+    <input id="fContact" placeholder="Phone, WhatsApp, or Telegram">
+
+    <div class="err" id="formErr"></div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="cancelModal" type="button">Cancel</button>
+      <button class="btn-submit" id="submitPost" type="button">Post to board</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
