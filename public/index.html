@@ -3,96 +3,462 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Saathi Sawaari — Ride Board</title>
-<meta name="description" content="A no-money community ride board. Offer a spare seat or find one, from wherever to wherever.">
+<title>Kata Ho - Share Rides, Save Money</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #4F46E5;
+    --primary-dark: #4338CA;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-400: #9CA3AF;
+    --gray-600: #4B5563;
+    --gray-900: #111827;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+  }
+  
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--gray-50); color: var(--gray-900); line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  /* Header */
+  .header {
+    background: white; border-bottom: 1px solid var(--gray-200);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-inner { max-width: 1280px; margin: 0 auto; padding: 16px 24px; }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .logo { font-size: 22px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+  .logo::before { content: "🚗"; font-size: 24px; }
+  .header-actions { display: flex; gap: 20px; align-items: center; }
+  
+  .bell { position: relative; cursor: pointer; padding: 8px; border-radius: 8px; transition: background 0.2s; }
+  .bell:hover { background: var(--gray-100); }
+  .bell svg { width: 22px; height: 22px; stroke: var(--gray-600); }
+  .notif-count { 
+    position: absolute; top: 4px; right: 4px; background: var(--danger); 
+    color: white; border-radius: 10px; padding: 1px 5px; font-size: 11px; font-weight: 600;
+  }
+  .notif-dropdown {
+    display: none; position: absolute; right: 0; top: 40px; background: white;
+    border-radius: var(--radius); box-shadow: var(--shadow-lg); width: 320px; 
+    max-height: 400px; overflow-y: auto; border: 1px solid var(--gray-200);
+  }
+  .notif-dropdown.show { display: block; }
+  .notif-header { padding: 12px 16px; font-weight: 600; border-bottom: 1px solid var(--gray-200); }
+  .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--gray-100); font-size: 14px; }
+  .notif-item:hover { background: var(--gray-50); }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-time { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+  .user-pill { 
+    display: flex; align-items: center; gap: 8px; background: var(--gray-100); 
+    padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 500;
+  }
+  
+  .tabs { display: flex; gap: 4px; background: var(--gray-100); padding: 4px; border-radius: 10px; }
+  .tab {
+    padding: 8px 16px; background: transparent; border: none; color: var(--gray-600);
+    border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s; font-size: 14px;
+  }
+  .tab.active { background: white; color: var(--primary); box-shadow: var(--shadow); }
+  
+  /* Layout */
+  .container { max-width: 1280px; margin: 32px auto; padding: 0 24px; }
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  
+  /* Cards */
+  .card {
+    background: white; border-radius: var(--radius); padding: 24px; margin-bottom: 16px;
+    box-shadow: var(--shadow); border: 1px solid var(--gray-200); transition: box-shadow 0.2s;
+  }
+  .card:hover { box-shadow: var(--shadow-lg); }
+  .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; }
+  .driver-info h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .driver-info p { color: var(--gray-600); font-size: 14px; }
+  
+  .badge {
+    padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .badge.available { background: #D1FAE5; color: #065F46; }
+  .badge.available::before { content: "●"; }
+  .badge.full { background: #FEE2E2; color: #991B1B; }
+  .badge.offline { background: var(--gray-100); color: var(--gray-600); }
+  
+  .route-grid { 
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; 
+  }
+  .route-box { 
+    background: var(--gray-50); padding: 12px 16px; border-radius: 8px; 
+    border: 1px solid var(--gray-200);
+  }
+  .route-box label { 
+    display: block; font-size: 11px; color: var(--gray-400); font-weight: 600; 
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .route-box span { font-size: 14px; font-weight: 500; }
+  
+  .map-container { 
+    margin: 16px 0; border-radius: 10px; overflow: hidden; 
+    border: 1px solid var(--gray-200);
+  }
+  .map-container iframe { width: 100%; height: 220px; border: 0; display: block; }
+  
+  .card-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .btn {
+    padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
+    transition: all 0.2s; font-size: 14px; font-family: inherit;
+  }
+  .btn-primary { 
+    background: var(--primary); color: white; flex: 1; 
+  }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+  .btn-primary:disabled { background: var(--gray-200); color: var(--gray-400); cursor: not-allowed; transform: none; }
+  .btn-secondary { background: white; color: var(--gray-600); border: 1px solid var(--gray-200); }
+  .btn-secondary:hover { background: var(--gray-50); }
+  
+  /* Forms */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; color: var(--gray-600); }
+  .form-group input, .form-group select {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--gray-200); border-radius: 8px; 
+    font-size: 14px; font-family: inherit; transition: border 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus {
+    outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+  }
+  
+  /* Filters */
+  .filters { display: flex; gap: 12px; margin-bottom: 24px; }
+  .filters input { 
+    flex: 1; padding: 12px 16px; border: 1px solid var(--gray-200); border-radius: 10px; 
+    font-size: 14px; background: white;
+  }
+  .filters input:focus { outline: none; border-color: var(--primary); }
+  
+  /* Login */
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--gray-50); }
+  .login-screen {
+    max-width: 400px; width: 100%; padding: 48px 40px; background: white; border-radius: 16px;
+    box-shadow: var(--shadow-lg); text-align: center; border: 1px solid var(--gray-200);
+  }
+  .login-screen h1 { color: var(--primary); margin-bottom: 8px; font-size: 28px; }
+  .login-screen p { color: var(--gray-600); margin-bottom: 32px; }
+  
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; background: var(--gray-900); color: white; 
+    padding: 14px 20px; border-radius: 10px; box-shadow: var(--shadow-lg); 
+    display: none; z-index: 1000; font-weight: 500; font-size: 14px;
+  }
+  .toast.show { display: block; animation: slideUp 0.3s ease; }
+  @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  
+  .section-title { font-size: 20px; font-weight: 700; margin: 32px 0 16px; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-400); }
+  
+  @media (max-width: 768px) {
+    .route-grid, .form-grid { grid-template-columns: 1fr; }
+    .header-inner { padding: 12px 16px; }
+    .container { padding: 0 16px; margin: 20px auto; }
+    .filters { flex-direction: column; }
+  }
+</style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="hero">
-    <div class="eyebrow">साथी सवारी <span class="dots"></span> community ride board</div>
-    <h1>Close the gap<br>between two points.</h1>
-    <p class="sub">A no-money notice board for friends heading the same way. Post a seat you have spare, or a ride you need — from wherever, to wherever.</p>
-    <div class="trail-hero">
-      <svg viewBox="0 0 700 64" preserveAspectRatio="none">
-        <circle cx="18" cy="46" r="5" fill="#E8A33D"/>
-        <path d="M 18 46 C 120 10, 220 58, 340 30 S 560 6, 682 20" stroke="#E8A33D" stroke-width="1.5" stroke-dasharray="1 9" stroke-linecap="round" fill="none" opacity="0.85"/>
-        <circle cx="682" cy="20" r="5" fill="#3E7CB1"/>
-      </svg>
-      <span class="pt" style="position:absolute; left:0; top:44px;">HERE</span>
-      <span class="pt" style="position:absolute; right:0; top:0;">THERE</span>
+<!-- Login Screen -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-screen">
+    <h1>Kata Ho</h1>
+    <p>Share rides with people going your way</p>
+    <div class="form-group">
+      <input type="email" id="loginEmail" placeholder="Email address">
     </div>
-  </div>
-
-  <div class="toolbar">
-    <button class="pill active" data-filter="all">All</button>
-    <button class="pill" data-filter="offer">Offering a ride</button>
-    <button class="pill" data-filter="request">Need a ride</button>
-    <div class="spacer"></div>
-    <button class="btn-post" id="openModal">+ Post</button>
-  </div>
-
-  <div id="list"><div class="loading">Loading the board…</div></div>
-
-  <footer>no fares change hands here — just neighbours closing a gap</footer>
-</div>
-
-<div id="overlay" class="overlay" style="display:none;">
-  <div class="modal">
-    <h2>Post to the board</h2>
-    <div class="sub2">Takes a minute. Everyone on the board will see this.</div>
-
-    <div class="type-toggle">
-      <button id="typeOffer" class="sel-offer" type="button">I have space to drive</button>
-      <button id="typeRequest" type="button">I need a ride</button>
+    <div class="form-group">
+      <input type="password" id="loginPassword" placeholder="Password">
     </div>
-
-    <label for="fName">Your name</label>
-    <input id="fName" placeholder="e.g. Anisha">
-
-    <div class="row2">
-      <div>
-        <label for="fFrom">From</label>
-        <input id="fFrom" placeholder="e.g. Jackson Heights">
-      </div>
-      <div>
-        <label for="fTo">To</label>
-        <input id="fTo" placeholder="e.g. JFK Airport">
-      </div>
-    </div>
-
-    <div class="row2">
-      <div>
-        <label for="fDate">Date</label>
-        <input id="fDate" type="date">
-      </div>
-      <div>
-        <label for="fTime">Time</label>
-        <input id="fTime" type="time">
-      </div>
-    </div>
-
-    <label for="fSeats" id="seatsLabel">Free seats</label>
-    <input id="fSeats" type="number" min="1" max="8" value="1">
-
-    <label for="fNote">Note (optional)</label>
-    <textarea id="fNote" placeholder="Anything helpful — flexible timing, luggage space, etc."></textarea>
-
-    <label for="fContact">How should people reach you?</label>
-    <input id="fContact" placeholder="Phone, WhatsApp, or Telegram">
-
-    <div class="err" id="formErr"></div>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" id="cancelModal" type="button">Cancel</button>
-      <button class="btn-submit" id="submitPost" type="button">Post to board</button>
-    </div>
+    <button class="btn btn-primary" style="width: 100%;" onclick="login()">Continue</button>
   </div>
 </div>
 
-<script src="app.js"></script>
+<!-- Main App -->
+<div id="app" style="display: none;">
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="logo">Kata Ho</div>
+        <div class="header-actions">
+          <div class="bell" onclick="toggleNotifications()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+            <span class="notif-count" id="notifCount">2</span>
+            <div class="notif-dropdown" id="notifDropdown">
+              <div class="notif-header">Notifications</div>
+              <div class="notif-item">
+                New ride request from Sarah Chen
+                <div class="notif-time">NLR to Conway • 2 minutes ago</div>
+              </div>
+              <div class="notif-item">
+                Raj accepted your request
+                <div class="notif-time">1 hour ago</div>
+              </div>
+            </div>
+          </div>
+          <div class="user-pill">
+            <span id="userEmail">user@email.com</span>
+          </div>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchView('passenger')">Find Rides</button>
+        <button class="tab" onclick="switchView('driver')">Post Ride</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Passenger View -->
+    <div id="passengerView" class="view active">
+      <div class="filters">
+        <input type="text" id="filterDest" placeholder="Search by destination..." onkeyup="filterRides()">
+        <input type="date" id="filterDate" onchange="filterRides()">
+      </div>
+      <div id="ridesList"></div>
+    </div>
+
+    <!-- Driver View -->
+    <div id="driverView" class="view">
+      <div class="card">
+        <h2 style="margin-bottom: 20px; font-size: 20px;">Post a New Ride</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>From</label>
+            <input type="text" id="fromLoc" placeholder="North Little Rock, AR">
+          </div>
+          <div class="form-group">
+            <label>To</label>
+            <input type="text" id="toLoc" placeholder="Conway, AR">
+          </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Date & Time</label>
+            <input type="datetime-local" id="rideDateTime">
+          </div>
+          <div class="form-group">
+            <label>Seats Available</label>
+            <input type="number" id="seats" value="3" min="1" max="6">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Car Details</label>
+          <input type="text" id="carDetails" placeholder="Honda Civic - Blue">
+        </div>
+        <div class="form-group">
+          <label>Availability Status</label>
+          <select id="availability">
+            <option value="available">Available</option>
+            <option value="full">Full</option>
+            <option value="offline">Offline</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 8px;" onclick="postRide()">Post Ride</button>
+      </div>
+      <h3 class="section-title">Your Rides</h3>
+      <div id="driverRides"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let rides = [
+    {
+      id: 1, driver: "Bibek Shrestha", from: "North Little Rock, AR", to: "Conway, AR",
+      datetime: "2026-07-05T08:00", seats: 3, car: "Toyota Camry • Silver", 
+      status: "available", email: "bibek@email.com"
+    },
+    {
+      id: 2, driver: "Sarah Chen", from: "Little Rock, AR", to: "Fayetteville, AR",
+      datetime: "2026-07-06T07:30", seats: 2, car: "Honda Civic • Red", 
+      status: "available", email: "sarah@email.com"
+    },
+    {
+      id: 3, driver: "Raj Patel", from: "Conway, AR", to: "Hot Springs, AR",
+      datetime: "2026-07-07T09:00", seats: 0, car: "Tesla Model 3 • White", 
+      status: "full", email: "raj@email.com"
+    },
+    {
+      id: 4, driver: "Emma Davis", from: "NLR, AR", to: "Memphis, TN",
+      datetime: "2026-07-08T06:00", seats: 4, car: "Subaru Outback • Green", 
+      status: "offline", email: "emma@email.com"
+    }
+  ];
+
+  let currentUser = null;
+  let notifications = 2;
+
+  function login() {
+    const email = document.getElementById('loginEmail').value || 'user@email.com';
+    currentUser = email;
+    document.getElementById('userEmail').textContent = email;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    renderRides();
+  }
+
+  function switchView(view) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById(view + 'View').classList.add('active');
+    if (view === 'driver') renderDriverRides();
+  }
+
+  function renderRides() {
+    const list = document.getElementById('ridesList');
+    list.innerHTML = rides.map(ride => `
+      <div class="card" data-dest="${ride.to}" data-date="${ride.datetime.split('T')[0]}">
+        <div class="card-header">
+          <div class="driver-info">
+            <h3>${ride.driver}</h3>
+            <p>${ride.car} • ${ride.seats} ${ride.seats === 1 ? 'seat' : 'seats'} available</p>
+          </div>
+          <span class="badge ${ride.status}">${ride.status}</span>
+        </div>
+        <div class="route-grid">
+          <div class="route-box">
+            <label>From</label>
+            <span>${ride.from}</span>
+          </div>
+          <div class="route-box">
+            <label>To</label>
+            <span>${ride.to}</span>
+          </div>
+          <div class="route-box">
+            <label>Date & Time</label>
+            <span>${new Date(ride.datetime).toLocaleString('en-US', {month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'})}</span>
+          </div>
+          <div class="route-box">
+            <label>Status</label>
+            <span>${ride.status.charAt(0).toUpperCase() + ride.status.slice(1)}</span>
+          </div>
+        </div>
+        <div class="map-container">
+          <iframe
+            src="https://maps.google.com/maps?q=${encodeURIComponent(ride.from)}+to+${encodeURIComponent(ride.to)}&output=embed"
+            loading="lazy">
+          </iframe>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" onclick="requestRide(${ride.id})" ${ride.status !== 'available' ? 'disabled' : ''}>
+            ${ride.status === 'available' ? 'Request Ride' : 'Not Available'}
+          </button>
+          <button class="btn btn-secondary" onclick="window.open('https://www.google.com/maps/dir/${encodeURIComponent(ride.from)}/${encodeURIComponent(ride.to)}')">
+            Open in Maps
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function requestRide(rideId) {
+    const ride = rides.find(r => r.id === rideId);
+    showToast(`Request sent! ${ride.driver} will be notified via Email/SMS`);
+    addNotification(`${ride.driver} - ${ride.from} to ${ride.to}`);
+  }
+
+  function postRide() {
+    const newRide = {
+      id: rides.length + 1,
+      driver: currentUser,
+      from: document.getElementById('fromLoc').value,
+      to: document.getElementById('toLoc').value,
+      datetime: document.getElementById('rideDateTime').value,
+      seats: parseInt(document.getElementById('seats').value),
+      car: document.getElementById('carDetails').value,
+      status: document.getElementById('availability').value,
+      email: currentUser
+    };
+    rides.unshift(newRide);
+    showToast('Ride posted successfully!');
+    renderRides();
+    renderDriverRides();
+    document.querySelector('#driverView form')?.reset();
+  }
+
+  function renderDriverRides() {
+    const myRides = rides.filter(r => r.driver === currentUser);
+    document.getElementById('driverRides').innerHTML = myRides.length ? myRides.map(ride => `
+      <div class="card">
+        <div class="card-header">
+          <div class="driver-info">
+            <h3>${ride.from} → ${ride.to}</h3>
+            <p>${new Date(ride.datetime).toLocaleString('en-US', {month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'})} • ${ride.seats} seats</p>
+          </div>
+          <span class="badge ${ride.status}">${ride.status}</span>
+        </div>
+        <div class="map-container">
+          <iframe src="https://maps.google.com/maps?q=${encodeURIComponent(ride.from)}+to+${encodeURIComponent(ride.to)}&output=embed"></iframe>
+        </div>
+      </div>
+    `).join('') : '<div class="empty-state">No rides posted yet</div>';
+  }
+
+  function filterRides() {
+    const dest = document.getElementById('filterDest').value.toLowerCase();
+    const date = document.getElementById('filterDate').value;
+    document.querySelectorAll('#ridesList .card').forEach(card => {
+      const matchesDest = card.dataset.dest.toLowerCase().includes(dest);
+      const matchesDate = !date || card.dataset.date === date;
+      card.style.display = matchesDest && matchesDate ? 'block' : 'none';
+    });
+  }
+
+  function toggleNotifications() {
+    document.getElementById('notifDropdown').classList.toggle('show');
+  }
+
+  function addNotification(text) {
+    notifications++;
+    document.getElementById('notifCount').textContent = notifications;
+    const dropdown = document.getElementById('notifDropdown');
+    const header = dropdown.querySelector('.notif-header');
+    header.insertAdjacentHTML('afterend', `
+      <div class="notif-item">
+        New ride request
+        <div class="notif-time">${text} • Just now</div>
+      </div>
+    `);
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.bell')) {
+      document.getElementById('notifDropdown').classList.remove('show');
+    }
+  });
+</script>
+
 </body>
 </html>
